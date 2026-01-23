@@ -80,6 +80,7 @@ SDL_Window* window;
 SDL_Renderer* renderer;
 bool running = true;
 bool fullscreen = false;
+int fps = 0;
 
 char* title;
 IVec2 res;
@@ -271,6 +272,10 @@ bool getKeyUp(SDL_Scancode key) {
     return lastKeys[key] && !keys[key];
 }
 
+int getTicks() {
+    return SDL_GetTicks();
+}
+
 int main() {
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
@@ -294,7 +299,7 @@ int main() {
     scroll_y = 0;
 
     window = SDL_CreateWindow(title, 0, 0, res.x, res.y, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     SDL_RenderSetLogicalSize(renderer, 1920, 1080);
 
@@ -303,6 +308,7 @@ int main() {
     SDL_Event event;
 
     while(running) {
+        int fps_start = getTicks();
         while(SDL_PollEvent(&event) != 0) {
             switch(event.type) {
                 case(SDL_QUIT): running = false; break;
@@ -352,6 +358,9 @@ int main() {
         last_mouse_y = mouse_y;
         scroll_x = 0;
         scroll_y = 0;
+
+        int fps_end = getTicks();
+        fps = 1.0 / ((float)(fps_end - fps_start) / 1000.0);
     }
 
     for(int i = 0; i < 256; i++) {
